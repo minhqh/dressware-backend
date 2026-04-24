@@ -45,3 +45,19 @@ class ItemResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+# Dữ liệu tạo Outfit
+class OutfitCreate(BaseModel):
+    name: str = Field(..., examples=["Đồ đi chơi 2"])
+
+# Dữ liệu trả về của Outfit:
+class OutfitResponse(BaseModel):
+    id: int
+    name: str
+
+    class Config:
+        from_attributes = True
+
+# Dữ liệu khi thêm item mới vào outfit
+class OutfitItemAdd(BaseModel):
+    item_id: int
