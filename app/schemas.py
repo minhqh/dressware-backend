@@ -1,6 +1,6 @@
 from pydantic import BaseModel , EmailStr ,Field
 from typing import Optional
-from app.models import GenderEnum ,ItemCategoryEnum ,SeasonEnum
+from app.models import GenderEnum ,ItemCategoryEnum ,SeasonEnum, InteractionEnum
 
 # Cấu trúc khi user đăng ký
 class UserCreate(BaseModel):
@@ -61,3 +61,21 @@ class OutfitResponse(BaseModel):
 # Dữ liệu khi thêm item mới vào outfit
 class OutfitItemAdd(BaseModel):
     item_id: int
+
+# Dữ liệu khi user tương tác 
+class InteractionCreate(BaseModel):
+    # User tương tác với Item HOẶC Outfit 
+    item_id: Optional[int] = None
+    outfit_id: Optional[int] = None
+    interaction_type: InteractionEnum
+
+# Dữ liệu trả về
+class InteractionResponse(BaseModel):
+    id: int
+    user_id: int
+    item_id: Optional[int]
+    outfit_id: Optional[int]
+    interaction_type: InteractionEnum
+
+    class Config:
+        from_attributes = True
