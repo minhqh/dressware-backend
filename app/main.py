@@ -3,11 +3,13 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 from app.database import get_db
 
-from app.routers import users
+from app.routers import users 
+from app.routers import items
 
 app = FastAPI(title="DressWare API")
 
 app.include_router(users.router) 
+app.include_router(items.router)
 
 @app.get("/")
 def read_root():

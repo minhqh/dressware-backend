@@ -1,7 +1,12 @@
 import os
+import jwt
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
-import jwt
+from fastapi import Depends,HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app.models import User
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -27,3 +32,27 @@ def create_access_token(data: dict) -> str:
 
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Không thể xác thực thông tin đăng nhập",
+        headers={"WWW-Authemticate": "Bearer"}
+    )
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise credentials_exception
+    except jwt.PyJWKError:
+        raise credentials_exception
+    
+    user = db.query(User).filter(User.id == int(user_id)).first()
+    
+    if user is None:
+        raise credentials_exception
+    return user
